@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en" class="no-js">
+    <head>  
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- Add a title to the page -->
+        <title>Translators of the Ancient Mediterranean</title>
+        <!-- link to Montserrat font -->
+        <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+        <!-- link to Orpheus Pro Bold font -->
+        <link href="https://db.onlinewebfonts.com/c/81651a191b7129993b0871c834a19600?family=OrpheusPro-Bold" rel="stylesheet">
+        <!-- link to Poppins font -->
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap" rel="stylesheet">   
+        <!-- leaflet css -->
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin="" />
+        <!-- for the collapsible sidebar -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" />
+        <link rel="stylesheet" href="src/leaflet-sidebar.css" />                
+        <!-- custom style here -->
+        <style type="text/css">
+            /* Set the page and body parameters */
+            body,
+            html {
+            margin: 0;
+            padding: 0;
+            font: 10pt "Helvetica Neue", Arial, Helvetica, sans-serif;
+            }
+            /* Set map parameters */
+            #map {
+            position: fixed;
+            bottom: 0px;
+            width: 100%;
+            top: 0px;
+            } 
+            /* Font styles */
+            h1 {
+                color: white;
+                font-size: 16px;
+                display: inline-block;
+                margin-top: 0.5em;
+                margin-bottom: 0.0em;
+                margin-left: 0.8em;
+                margin-right: 0;
+                font-weight: normal;
+                font-family: "Montserrat";
+            }
+            h2 {
+                font-size: 12px;
+                color: white;
+                display: inline-block;
+                margin-top: 0.25em;
+                margin-bottom: 0.0em;
+                margin-left: 1.0em;
+                margin-right: 0;
+                font-weight: normal;
+                font-family: "Montserrat";
+            }
+            h4 {
+                font-size: 16px;
+                margin: 4px;
+            }            
+            /* custom sidebar css */
+                /* sidebar header */
+                .sidebar-header {
+                    width: 100%;
+                    font-family: "OrpheusPro-Bold"; 
+                }
+                /* sidebar icon */
+                i {
+                    color: rgb(0, 0, 0);
+                }
+                /* sidebar about heading */
+                .about {
+                    color: rgb(0, 0, 0);
+                    font-family: "OrpheusPro-Bold"; 
+                    font-size: 16px;
+                    margin-bottom: 0px;
+                    margin-top: 0px;
+                    margin-left: 0px;
+                }
+                /* selection heading */
+                .choose {
+                    color: rgb(0, 0, 0);
+                    font-family: "OrpheusPro-Bold"; 
+                    font-size: 16px;
+                    margin-bottom: 0px;
+                    margin-top: 0px;
+                    margin-left: 0px;       
+                }
+                /* map info */
+                .details {
+                    font-family: 'Poppins', sans-serif;
+                    font-size: 13px;
+                    font-weight: normal;
+                    margin-bottom: 0px;
+                    margin-top: 0px;
+                }
+                .instructions {
+                    font-family: 'Poppins', sans-serif;
+                    font-size: 12px;
+                    font-weight: normal;
+                    margin-bottom: 0px;
+                    margin-top: 0px;        
+                }
+                .introbreak {
+                    display: block;
+                    margin-bottom: 1em;
+                }       
+                /* collapsible div css */
+                .header {
+                    display: flex;
+                    align-items: center;
+                }
+                #collapseButton {
+                    background: none;
+                    border: none;
+                    cursor: pointer;
+                    font-size: 1rem;
+                    color: #333;
+                    margin-right: 10px; /* Add some spacing between the button and the h2 element */
+                }
+                #collapseButton .icon {
+                    margin-right: 5px;
+                }
+            /* End custom sidebar css */        
+        </style>
+    </head>
+    <body>
+        <div id="sidebar" class="sidebar collapsed">    
+            <div class="sidebar-tabs">
+                <ul role="tablist">
+                  <li><a href="#home" role="tab"><i class="fa fa-bars"></i></a></li>
+                </ul>
+            </div> 
+            <div class="sidebar-content">
+                <div class="sidebar-pane" id="home">
+                    <h1 class="sidebar-header">Translators of the Ancient Mediterranean<span class="sidebar-close"><i class="fa fa-caret-left"></i></span></h1><br>
+                    <br>
+                    <div class="header">
+                        <button id="collapseButton"><span class="icon"><i class="fas fa-chevron-up"></i></span></button>
+                        <h2 class="about">About This Project</h2>
+                    </div>
+                    <div id="collapsibleContent">
+                        </b><br>
+                        <h3 class="details">Explain the map here.</h3>
+                        <br><h4 class="instructions">1.) Provide instructions for the map here.</h4>
+                        <br><h3 class="details">Give credits here.</h3>
+                        <p style="padding-bottom:0px"></p>
+                    </div>
+                    <div id="dropdown-instructions">
+                        <p><h2 class="choose">Locate a translator.</h2></p>
+                    </div>
+                    <form id="map_parameters" name="map_parameters" action="#" accept-charset="utf-8" class="inlineForm"><select id="chapter-select" class="div-toggle" data-target=".my-info-1"></select></form>
+                    <!-- Add a button to trigger the handleButtonClick() function -->
+                    <div id="search-instructions">
+                    <p><h2 class="choose">Click the search button or zoom back to Iowa.</h2></p>
+                    </div>
+                        <!-- Wrap the buttons in a container div to control their layout -->
+                        <div class="button-container">
+                            <button onclick="handleButtonClick()">Search</button>
+                            <button onclick="handleZoomOutClick()">Zoom Out</button>
+                        </div>                      
+                    </div>                
+                </div>
+            </div>                       
+        </div>
+        <!-- map -->
+        <div id="map"></div>
+        <!-- leaflet js -->
+        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
+        <!-- d3js -->
+        <script src="https://d3js.org/d3.v4.min.js"></script>
+        <!-- jQuery -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+        <!-- chroma -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/1.2.1/chroma.min.js"></script>
+        <!-- sidebar -->
+        <script src="src/svg-icon.js"></script>
+        <script src="src/leaflet-sidebar.js"></script>
+        <!-- javascript below -->            
+        <script>
+            // Initialize the map
+            const map = L.map('map');
+            // Add a sidebar to the map
+            const sidebar = L.control.sidebar("sidebar").addTo(map);
+            sidebar.open("home");
+            // Code to collapse about content
+            const collapseButton = document.getElementById('collapseButton'); // Define the collapse button
+            const collapsibleContent = document.getElementById('collapsibleContent'); // Define the collapsible content
+            // Add a click event listener to the button
+            collapseButton.addEventListener('click', function() {
+                // Check if the collapsible content is already open
+                if (collapsibleContent.style.display === 'none') {
+                    // Show the collapsible content
+                    collapsibleContent.style.display = 'block';
+                    // Change the button icon
+                    collapseButton.innerHTML = '<span class="icon"><i class="fas fa-chevron-up"></i></span>';
+                } else {
+                    // Hide the collapsible content
+                    collapsibleContent.style.display = 'none';
+                    // Change the button icon
+                    collapseButton.innerHTML = '<span class="icon"><i class="fas fa-chevron-down"></i></span>';
+                }
+            });
+            // define an empty array to hold the sidebar selected content
+            const chapterContent = [];
+            // Declare a global variable to hold the translator locations layer
+            let translocLayer;
+            // add a basemap
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+                subdomains: 'abcd',
+                maxZoom: 20
+            }).addTo(map);
+            // Add a scale bar
+                L.control.scale({
+                position: 'bottomright'
+            }).addTo(map);
+            // Remove the default zoom control
+            map.zoomControl.remove();
+            // Load the data asynchronously
+            d3.queue()
+                .defer(d3.json, "data/translators-found.geojson") // Load the translators-found data
+                .await(drawMap); // Call the drawMap function when the data is loaded
+            // Define the drawMap function
+            function drawMap(err, translocs) {
+                // Create a geojson layer with the retrieved translator location data
+                const translatorLocs = L.geoJson(translocs, {
+                    pointToLayer: function(feature, latlng) {
+                        // Create a circle marker
+                        return L.circleMarker(latlng, {
+                            // Set the fill color based on the chapter
+                            fillColor: 'blue',
+                            color: "#000",
+                            weight: 1,
+                            fillOpacity: 0.8,
+                            radius: 4
+                        });
+                    },
+                    // Add a popup for each marker
+                    onEachFeature: function(feature, layer) {
+                        // Add a tooltip to each marker to display the translators' names
+                        layer.bindTooltip(feature.properties.Author);
+                        // Add the author name to the chapterContent array
+                        chapterContent.push(feature.properties.Author);
+                        // Change the marker color on hover
+                        layer.on('mouseover', function(e) {
+                            // Change the marker color
+                            this.setStyle({
+                                fillColor: 'yellow'
+                            });
+                        });
+                        // Change the marker color back on mouseout
+                        layer.on('mouseout', function(e) {
+                            // Change the marker color
+                            this.setStyle({
+                                fillColor: 'blue'
+                            });
+                        });
+                    }
+                });
+                // Assign the translatorLocs layer to the global translocLayer variable
+                translocLayer = translatorLocs;
+                // Add the translocLayer to the map
+                translocLayer.addTo(map);
+                // Fit the map to the translatorLocs bounds
+                map.fitBounds(translatorLocs.getBounds());
+                // Reorder the chapterContent array alphabetically
+                chapterContent.sort();
+                // Add the chapterContent array to the dropdown menu
+                const select = document.getElementById("chapter-select");
+                for (let i = 0; i < chapterContent.length; i++) {
+                    const opt = chapterContent[i];
+                    const el = document.createElement("option");
+                    el.textContent = opt;
+                    el.value = opt;
+                    select.appendChild(el);
+                };
+            };
+            // Function to get the selected value from the dropdown
+            function getSelectedDropdownValue() {
+                const dropdown = document.getElementById('chapter-select');
+                const selectedDropdownValue = dropdown.value;
+                return selectedDropdownValue;
+            };
+            
+            // Function to handle the button click
+            function handleButtonClick() {
+                const selections = getSelectedDropdownValue();
+                console.log(selections);
+                // If the user selects a translator, zoom to the translator's location
+                if (selections) {
+                    // Loop through the translocLayer features to find the selected translator
+                    translocLayer.eachLayer(function(layer) {
+                        // If the selected translator is found, zoom to the translator's location
+                        if (layer.feature.properties.Author === selections) {
+                            map.setView(layer.getLatLng(), 10);
+                            layer.bindTooltip(layer.feature.properties.Author).openTooltip();
+                            // Close the tooltip after 3 seconds
+                            setTimeout(function() {
+                                layer.closeTooltip();
+                            }, 3000);
+                        };
+                    });
+                };
+            };
+
+            // Define the handleZoomOutClick() function
+            function handleZoomOutClick() {
+                // Perform the zoom-out operation using fitBounds()
+                map.fitBounds(translocLayer.getBounds());
+            };
+        </script>
+    </body>
+</html>
