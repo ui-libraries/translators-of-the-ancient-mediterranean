@@ -15,7 +15,7 @@
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin="" />
         <!-- for the collapsible sidebar -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" />
-        <link rel="stylesheet" href="src/leaflet-sidebar.css" />                
+        <link rel="stylesheet" href="src/leaflet-sidebar.css" />            
         <!-- custom style here -->
         <style type="text/css">
             /* Set the page and body parameters */
@@ -224,6 +224,51 @@
                 .await(drawMap); // Call the drawMap function when the data is loaded
             // Define the drawMap function
             function drawMap(err, translocs) {
+                
+                const translatorLocs = L.geoJson(translocs, {
+                    pointToLayer: function (feature, latlng) {
+                        // Create a blue marker
+                        return L.marker(latlng, {
+                            icon: L.icon({
+                                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+                                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                                iconSize: [25, 41],
+                                iconAnchor: [12, 41],
+                                shadowSize: [41, 41]
+                            })
+                        });
+                    },
+                    onEachFeature: function (feature, layer) {
+                        // Push the translator name to the chapterContent array
+                        chapterContent.push(feature.properties.Author);
+                        // Add a tooltip to each marker to display the translators' names
+                        layer.bindTooltip(feature.properties.Author);
+                        // On mouseover, change the marker color
+                        layer.on('mouseover', function(e) {
+                            // Change the marker color
+                            this.setIcon(L.icon({
+                                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-yellow.png',
+                                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                                iconSize: [25, 41],
+                                iconAnchor: [12, 41],
+                                shadowSize: [41, 41]
+                            }));
+                        });
+                        // On mouseout, change the marker color back
+                        layer.on('mouseout', function(e) {
+                            // Change the marker color
+                            this.setIcon(L.icon({
+                                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+                                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                                iconSize: [25, 41],
+                                iconAnchor: [12, 41],
+                                shadowSize: [41, 41]
+                            }));
+                        });
+                    },
+                });
+
+/*                
                 // Create a geojson layer with the retrieved translator location data
                 const translatorLocs = L.geoJson(translocs, {
                     pointToLayer: function(feature, latlng) {
@@ -259,6 +304,7 @@
                         });
                     }
                 });
+*/                
                 // Assign the translatorLocs layer to the global translocLayer variable
                 translocLayer = translatorLocs;
                 // Add the translocLayer to the map
