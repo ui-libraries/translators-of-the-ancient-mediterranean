@@ -242,7 +242,7 @@
                         // Push the translator name to the chapterContent array
                         chapterContent.push(feature.properties.Author);
                         // Add a tooltip to each marker to display the translators' names
-                        layer.bindTooltip(feature.properties.Author);
+                        layer.bindTooltip('<div style="max-width: 250px; width: max-content; white-space: normal;"><b>' + feature.properties.Author + '</b><hr>' + feature.properties.Affiliation + '<br>' + feature.properties.Position + '<br><b>Interest:</b> ' + feature.properties.AOI + '<br><b>Focus:</b> ' + feature.properties.Focus);
                         // On mouseover, change the marker color
                         layer.on('mouseover', function(e) {
                             // Change the marker color
@@ -341,7 +341,7 @@
                         // If the selected translator is found, zoom to the translator's location
                         if (layer.feature.properties.Author === selections) {
                             map.setView(layer.getLatLng(), 10);
-                            layer.bindTooltip(layer.feature.properties.Author).openTooltip();
+                            layer.bindTooltip('<div style="max-width: 250px; width: max-content; white-space: normal;"><b>' + layer.feature.properties.Author + '</b><hr>' + layer.feature.properties.Affiliation + '<br>' + layer.feature.properties.Position + '<br><b>Interest:</b> ' + layer.feature.properties.AOI + '<br><b>Focus:</b> ' + layer.feature.properties.Focus).openTooltip();
                             // Close the tooltip after 3 seconds
                             setTimeout(function() {
                                 layer.closeTooltip();
