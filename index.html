@@ -473,16 +473,16 @@
                                 });
                                 // Fit the map to the bounds
                                 map.fitBounds(bounds);
-                                // If there is only one translator, back up to zoom 10
-                                if (selectedTranslators.getLayers().length === 1) {
-                                    map.setZoom(10);
-                                };
                             };
                         } else {
                             // Remove the layer from the selectedTranslators layer
                             selectedTranslators.removeLayer(layer);
                         };
                     });
+                    // Set the maximum zoom level to 10 if the current zoom level is greater than 10
+                    if (map.getZoom() > 10) {
+                        map.setZoom(10);
+                    };
                 };
                 // Join the chapterContent array, and set it as the innerHTML of the info div
                 info.innerHTML = chapterContent.join('<br>');
