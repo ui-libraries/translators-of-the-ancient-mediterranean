@@ -425,15 +425,11 @@
                 translocLayer.addTo(map);
                 // Clear the chapterContent array
                 chapterContent.length = 0;
-                info.innerHTML = chapterContent.join('');
                 // Define an empty layer to hold the selected translators
                 const selectedTranslators = L.layerGroup().addTo(map);
                 // Define dropdown returns
                 const names = getSelectedDropdownName();
                 const interests = getSelectedDropdownInterest();
-                
-                
-
                 // If the user selects a translator, zoom to the translator's location
                 if (names !== "0") {
                     // Hide the translocLayer
@@ -455,9 +451,6 @@
                         };
                     });
                 };
-
-
-
                 // If the user selects an interest
                 if (interests !== "0" && names == "0") {
                     // Hide the translocLayer
@@ -488,9 +481,8 @@
                     });
                 };
                 // Join the chapterContent array, and set it as the innerHTML of the info div
-                info.innerHTML = chapterContent;
+                info.innerHTML = chapterContent.join('<br>');
             };
-
             // Define the handleZoomOutClick() function
             function handleZoomOutClick() {
                 // Perform the zoom-out operation using fitBounds()
