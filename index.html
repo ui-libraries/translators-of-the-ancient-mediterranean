@@ -172,6 +172,10 @@
                             <button onclick="handleButtonClick()">Search</button>
                             <button onclick="handleZoomOutClick()">Zoom Out</button>
                         </div>                      
+                    </div>
+                    <br>
+                    <div id="sidebar-info" class="my-info-1">
+                        <div id="content-info" class="contentinfo hide"></div>
                     </div>                
                 </div>
             </div>                       
@@ -214,9 +218,14 @@
                     collapseButton.innerHTML = '<span class="icon"><i class="fas fa-chevron-down"></i></span>';
                 }
             });
-            // define an empty array to hold the sidebar selected content
+            // Define an empty array to hold the chapter content
+            const chapterContent = [];
+            // Define an empty array to hold the translator names
             const names = [];
+            // Define an empty array to hold the translator interests
             let interests = [];
+            // define sidebar info
+            const info = document.getElementById("content-info");
             // Declare a global variable to hold the translator locations layer
             let translocLayer;
             // add a basemap
@@ -382,6 +391,9 @@
             };
             // Function to handle the button click
             function handleButtonClick() {
+                // Clear the chapterContent array
+                chapterContent.length = 0;
+                info.innerHTML = chapterContent.join('');
                 // Define an empty layer to hold the selected translators
                 const selectedTranslators = L.layerGroup().addTo(map);
                 // Define dropdown returns
@@ -401,6 +413,8 @@
                             setTimeout(function() {
                                 layer.closeTooltip();
                             }, 3000);
+                            // Build out the chapterContent array
+                            chapterContent.push('<p style="margin-left: 1.4em"><b style="font-size: 12pt">' + layer.feature.properties.Author + '</b><br><br>' + layer.feature.properties.Affiliation + '<br>' + layer.feature.properties.Position + '<br><b>Interest:</b> ' + layer.feature.properties.AOI + '<br><b>Focus:</b> ' + layer.feature.properties.Focus + '</p>');
                         };
                     });
                 };
@@ -414,6 +428,8 @@
                         if (layer.feature.properties.AOI.includes(interests)) {
                             // Add the layer to the selectedTranslators layer
                             selectedTranslators.addLayer(layer);
+                            // Build out the chapterContent array
+                            chapterContent.push('<p style="margin-left: 1.4em"><b style="font-size: 12pt">' + layer.feature.properties.Author + '</b><br><br>' + layer.feature.properties.Affiliation + '<br>' + layer.feature.properties.Position + '<br><b>Interest:</b> ' + layer.feature.properties.AOI + '<br><b>Focus:</b> ' + layer.feature.properties.Focus + '</p>');
                             // Fit the map to the markers on the map
                             if (selectedTranslators.getLayers().length > 0) {
                                 // Initialize an empty LatLngBounds object
@@ -431,7 +447,8 @@
                         };
                     });
                 };
-                
+                // Join the chapterContent array, and set it as the innerHTML of the info div
+                info.innerHTML = chapterContent;
             };
 
             // Define the handleZoomOutClick() function
