@@ -221,7 +221,7 @@
             // Define an empty array to hold the chapter content
             const chapterContent = [];
             // Define an empty array to hold the translator names
-            const names = [];
+            let names = [];
             // Define an empty array to hold the translator interests
             let interests = [];
             // define sidebar info
@@ -376,6 +376,36 @@
                     el.value = opt;
                     interestSelect.appendChild(el);
                 };
+                // if there is a change in the interest dropdown, update the name dropdown
+                document.getElementById('interest-select').addEventListener('change', function() {
+                    // Clear the name dropdown
+                    document.getElementById('name-select').innerHTML = '<option value="0">Select a Translator</option>';
+                    // If the interest dropdown is set to "0", return the name dropdown to its default state
+                    if (document.getElementById('interest-select').value === "0") {
+                        // Add the names array to the dropdown menu
+                        for (let i = 0; i < names.length; i++) {
+                            const opt = names[i];
+                            const el = document.createElement("option");
+                            el.textContent = opt;
+                            el.value = opt;
+                            nameSelect.appendChild(el);
+                        };
+                    } else {
+                        // Get the selected interest
+                        const selectedInterest = document.getElementById('interest-select').value;
+                        // Loop through the translocLayer features
+                        translocLayer.eachLayer(function(layer) {
+                            // If the selected interest is found in the layer, add the author to the name dropdown
+                            if (layer.feature.properties.AOI.includes(selectedInterest)) {
+                                const opt = layer.feature.properties.Author;
+                                const el = document.createElement("option");
+                                el.textContent = opt;
+                                el.value = opt;
+                                nameSelect.appendChild(el);
+                            };
+                        });
+                    };
+                });
             };
             // Function to get the selected name from the dropdown
             function getSelectedDropdownName() {
@@ -391,6 +421,8 @@
             };
             // Function to handle the button click
             function handleButtonClick() {
+                // Show the translocLayer
+                translocLayer.addTo(map);
                 // Clear the chapterContent array
                 chapterContent.length = 0;
                 info.innerHTML = chapterContent.join('');
@@ -399,14 +431,19 @@
                 // Define dropdown returns
                 const names = getSelectedDropdownName();
                 const interests = getSelectedDropdownInterest();
+                
+                
+
                 // If the user selects a translator, zoom to the translator's location
-                if (names !== "0" && interests == "0") {
-                    // Show the translocLayer
-                    translocLayer.addTo(map);
+                if (names !== "0") {
+                    // Hide the translocLayer
+                    translocLayer.removeFrom(map);
                     // Loop through the translocLayer features to find the selected translator
                     translocLayer.eachLayer(function(layer) {
                         // If the selected translator is found, zoom to the translator's location
                         if (layer.feature.properties.Author === names) {
+                            // Add the layer to the selectedTranslators layer
+                            selectedTranslators.addLayer(layer);
                             map.setView(layer.getLatLng(), 10);
                             layer.bindTooltip('<div style="max-width: 250px; width: max-content; white-space: normal;"><b>' + layer.feature.properties.Author + '</b><hr>' + layer.feature.properties.Affiliation + '<br>' + layer.feature.properties.Position + '<br><b>Interest:</b> ' + layer.feature.properties.AOI + '<br><b>Focus:</b> ' + layer.feature.properties.Focus).openTooltip();
                             // Close the tooltip after 3 seconds
@@ -418,6 +455,9 @@
                         };
                     });
                 };
+
+
+
                 // If the user selects an interest
                 if (interests !== "0" && names == "0") {
                     // Hide the translocLayer
