@@ -148,12 +148,24 @@
                         <p style="padding-bottom:0px"></p>
                     </div>
                     <div id="dropdown-instructions">
-                        <p><h2 class="choose">Locate a translator.</h2></p>
+                        <p><h2 class="choose">Filter by name:</h2></p>
                     </div>
-                    <form id="map_parameters" name="map_parameters" action="#" accept-charset="utf-8" class="inlineForm"><select id="chapter-select" class="div-toggle" data-target=".my-info-1"></select></form>
+                    <form id="map_parameters" name="map_parameters" action="#" accept-charset="utf-8" class="inlineForm">
+                        <select id="name-select" class="div-toggle" data-target=".my-info-1">
+                            <option value="0">Select a Translator</option>
+                        </select>
+                    </form>
+                    <div id="dropdown-instructions">
+                        <p><h2 class="choose">Filter by interest:</h2></p>
+                    </div>
+                    <form id="map_parameters" name="map_parameters" action="#" accept-charset="utf-8" class="inlineForm">
+                        <select id="interest-select" class="div-toggle" data-target=".my-info-1">
+                            <option value="0">Select an Interest</option>
+                        </select>
+                    </form>
                     <!-- Add a button to trigger the handleButtonClick() function -->
                     <div id="search-instructions">
-                    <p><h2 class="choose">Click the search button or zoom back to Iowa.</h2></p>
+                    <p><h2 class="choose">Click the search button or zoom out.</h2></p>
                     </div>
                         <!-- Wrap the buttons in a container div to control their layout -->
                         <div class="button-container">
@@ -203,7 +215,8 @@
                 }
             });
             // define an empty array to hold the sidebar selected content
-            const chapterContent = [];
+            const names = [];
+            let interests = [];
             // Declare a global variable to hold the translator locations layer
             let translocLayer;
             // add a basemap
@@ -239,8 +252,25 @@
                         });
                     },
                     onEachFeature: function (feature, layer) {
-                        // Push the translator name to the chapterContent array
-                        chapterContent.push(feature.properties.Author);
+                        // Push the translator name to the names array
+                        names.push(feature.properties.Author);
+                        // If there is a comma in the interest field, split it into an array
+                        if (feature.properties.AOI.includes(',')) {
+                            const splitInterests = feature.properties.AOI.split(',');
+                            // Loop through the split interests array
+                            for (let i = 0; i < splitInterests.length; i++) {
+                                // if there is a space at the beginning of the interest, remove the space
+                                if (splitInterests[i].charAt(0) === ' ') {
+                                    splitInterests[i] = splitInterests[i].substring(1);
+                                }
+                                // if there is an "and" at the beginning of the interest, remove "and"
+                                if (splitInterests[i].substring(0, 3) === 'and') {
+                                    splitInterests[i] = splitInterests[i].substring(4);
+                                }
+                                // Push the split interest to the interests array
+                                interests.push(splitInterests[i]);
+                            }
+                        };
                         // Add a tooltip to each marker to display the translators' names
                         layer.bindTooltip('<div style="max-width: 250px; width: max-content; white-space: normal;"><b>' + feature.properties.Author + '</b><hr>' + feature.properties.Affiliation + '<br>' + feature.properties.Position + '<br><b>Interest:</b> ' + feature.properties.AOI + '<br><b>Focus:</b> ' + feature.properties.Focus);
                         // On mouseover, change the marker color
@@ -311,35 +341,60 @@
                 translocLayer.addTo(map);
                 // Fit the map to the translatorLocs bounds
                 map.fitBounds(translatorLocs.getBounds());
-                // Reorder the chapterContent array alphabetically
-                chapterContent.sort();
-                // Add the chapterContent array to the dropdown menu
-                const select = document.getElementById("chapter-select");
-                for (let i = 0; i < chapterContent.length; i++) {
-                    const opt = chapterContent[i];
+                // Reorder the names array alphabetically
+                names.sort();
+                // Reorder the interests array alphabetically
+                interests.sort();
+                // Remove duplicate interests from the interests array
+                interests = interests.filter(function(item, index) {
+                    return interests.indexOf(item) >= index;
+                });
+                // Add the names array to the dropdown menu
+                const nameSelect = document.getElementById("name-select");
+                for (let i = 0; i < names.length; i++) {
+                    const opt = names[i];
                     const el = document.createElement("option");
                     el.textContent = opt;
                     el.value = opt;
-                    select.appendChild(el);
+                    nameSelect.appendChild(el);
+                };
+                // Add the interests array to the dropdown menu
+                const interestSelect = document.getElementById("interest-select");
+                for (let i = 0; i < interests.length; i++) {
+                    const opt = interests[i];
+                    const el = document.createElement("option");
+                    el.textContent = opt;
+                    el.value = opt;
+                    interestSelect.appendChild(el);
                 };
             };
-            // Function to get the selected value from the dropdown
-            function getSelectedDropdownValue() {
-                const dropdown = document.getElementById('chapter-select');
+            // Function to get the selected name from the dropdown
+            function getSelectedDropdownName() {
+                const dropdown = document.getElementById('name-select');
                 const selectedDropdownValue = dropdown.value;
                 return selectedDropdownValue;
             };
-            
+            // Function to get the selected interest from the dropdown
+            function getSelectedDropdownInterest() {
+                const dropdown = document.getElementById('interest-select');
+                const selectedDropdownValue = dropdown.value;
+                return selectedDropdownValue;
+            };
             // Function to handle the button click
             function handleButtonClick() {
-                const selections = getSelectedDropdownValue();
-                console.log(selections);
+                // Define an empty layer to hold the selected translators
+                const selectedTranslators = L.layerGroup().addTo(map);
+                // Define dropdown returns
+                const names = getSelectedDropdownName();
+                const interests = getSelectedDropdownInterest();
                 // If the user selects a translator, zoom to the translator's location
-                if (selections) {
+                if (names !== "0" && interests == "0") {
+                    // Show the translocLayer
+                    translocLayer.addTo(map);
                     // Loop through the translocLayer features to find the selected translator
                     translocLayer.eachLayer(function(layer) {
                         // If the selected translator is found, zoom to the translator's location
-                        if (layer.feature.properties.Author === selections) {
+                        if (layer.feature.properties.Author === names) {
                             map.setView(layer.getLatLng(), 10);
                             layer.bindTooltip('<div style="max-width: 250px; width: max-content; white-space: normal;"><b>' + layer.feature.properties.Author + '</b><hr>' + layer.feature.properties.Affiliation + '<br>' + layer.feature.properties.Position + '<br><b>Interest:</b> ' + layer.feature.properties.AOI + '<br><b>Focus:</b> ' + layer.feature.properties.Focus).openTooltip();
                             // Close the tooltip after 3 seconds
@@ -349,6 +404,34 @@
                         };
                     });
                 };
+                // If the user selects an interest
+                if (interests !== "0" && names == "0") {
+                    // Hide the translocLayer
+                    translocLayer.removeFrom(map);
+                    // Loop through the translocLayer features to find the selected interest
+                    translocLayer.eachLayer(function(layer) {
+                        // If the selected interest is found,
+                        if (layer.feature.properties.AOI.includes(interests)) {
+                            // Add the layer to the selectedTranslators layer
+                            selectedTranslators.addLayer(layer);
+                            // Fit the map to the markers on the map
+                            if (selectedTranslators.getLayers().length > 0) {
+                                // Initialize an empty LatLngBounds object
+                                let bounds = L.latLngBounds();
+                                // Loop through the selectedTranslators layer to get the bounds
+                                selectedTranslators.eachLayer(function(layer) {
+                                    bounds.extend(layer.getLatLng());
+                                });
+                                // Fit the map to the bounds
+                                map.fitBounds(bounds);
+                            };
+                        } else {
+                            // Remove the layer from the selectedTranslators layer
+                            selectedTranslators.removeLayer(layer);
+                        };
+                    });
+                };
+                
             };
 
             // Define the handleZoomOutClick() function
