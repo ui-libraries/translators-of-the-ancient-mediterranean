@@ -473,6 +473,10 @@
                                 });
                                 // Fit the map to the bounds
                                 map.fitBounds(bounds);
+                                // If there is only one translator, back up to zoom 10
+                                if (selectedTranslators.getLayers().length === 1) {
+                                    map.setZoom(10);
+                                };
                             };
                         } else {
                             // Remove the layer from the selectedTranslators layer
