@@ -232,8 +232,12 @@
             let names = [];
             // Define an empty array to hold the translator interests
             let interests = [];
+            // Define an empty array to hold the filtered interests
+            let filteredInterests = [];
             // Define an empty array to hold the translator focuses
             let focuses = [];
+            // Define an empty array to hold the filtered focuses
+            let filteredFocuses = [];
             // define sidebar info
             const info = document.getElementById("content-info");
             // Declare a global variable to hold the translator locations layer
@@ -342,45 +346,7 @@
                             }));
                         });
                     },
-                });
-
-/*                
-                // Create a geojson layer with the retrieved translator location data
-                const translatorLocs = L.geoJson(translocs, {
-                    pointToLayer: function(feature, latlng) {
-                        // Create a circle marker
-                        return L.circleMarker(latlng, {
-                            // Set the fill color based on the chapter
-                            fillColor: 'blue',
-                            color: "#000",
-                            weight: 1,
-                            fillOpacity: 0.8,
-                            radius: 4
-                        });
-                    },
-                    // Add a popup for each marker
-                    onEachFeature: function(feature, layer) {
-                        // Add a tooltip to each marker to display the translators' names
-                        layer.bindTooltip(feature.properties.Author);
-                        // Add the author name to the chapterContent array
-                        chapterContent.push(feature.properties.Author);
-                        // Change the marker color on hover
-                        layer.on('mouseover', function(e) {
-                            // Change the marker color
-                            this.setStyle({
-                                fillColor: 'yellow'
-                            });
-                        });
-                        // Change the marker color back on mouseout
-                        layer.on('mouseout', function(e) {
-                            // Change the marker color
-                            this.setStyle({
-                                fillColor: 'blue'
-                            });
-                        });
-                    }
-                });
-*/                
+                });            
                 // Assign the translatorLocs layer to the global translocLayer variable
                 translocLayer = translatorLocs;
                 // Add the translocLayer to the map
@@ -430,6 +396,10 @@
                 };
                 // if there is a change in the focus dropdown, update the name dropdown and the interest dropdown
                 document.getElementById('focus-select').addEventListener('change', function() {
+                    // Clear the filtered interests array
+                    filteredInterests.length = 0;
+                    // Clear the filtered focuses array
+                    filteredFocuses.length = 0;
                     // Clear the name dropdown
                     document.getElementById('name-select').innerHTML = '<option value="0">Select a Translator</option>';
                     // Clear the interest dropdown
@@ -484,26 +454,54 @@
                                         if (splitInterests[i] === '') {
                                             splitInterests.splice(i, 1);
                                         }
+/* NEED TO ADD VALUES TO EMPTY ARRAY, REMOVE DUPLICATES, SORT ALPHABETICALLY */
+                                        // Push the split interest to the filteredInterests array
+                                        filteredInterests.push(splitInterests[i]);
+                                        /*
                                         const opt = splitInterests[i];
                                         const el = document.createElement("option");
                                         el.textContent = opt;
                                         el.value = opt;
                                         interestSelect.appendChild(el);
+                                        */
                                     }
                                 } else {
+/* NEED TO ADD VALUES TO EMPTY ARRAY, REMOVE DUPLICATES, SORT ALPHABETICALLY */
+                                    // Push the interest to the filteredInterests array
+                                    filteredInterests.push(layer.feature.properties.AOI);
+                                    /*
                                     const opt = layer.feature.properties.AOI;
                                     const el = document.createElement("option");
                                     el.textContent = opt;
                                     el.value = opt;
                                     interestSelect.appendChild(el);
+                                    */
                                 };
                             };
                         });
+                    };
+                    // Remove duplicate interests from the filteredInterests array
+                    filteredInterests = filteredInterests.filter(function(item, index) {
+                        return filteredInterests.indexOf(item) >= index;
+                    });
+                    // Sort the filteredInterests array alphabetically
+                    filteredInterests.sort();
+                    // Add the filteredInterests array to the dropdown menu
+                    for (let i = 0; i < filteredInterests.length; i++) {
+                        const opt = filteredInterests[i];
+                        const el = document.createElement("option");
+                        el.textContent = opt;
+                        el.value = opt;
+                        interestSelect.appendChild(el);
                     };
                 });
 
                 // if there is a change in the interest dropdown, update the name dropdown and the focus dropdown
                 document.getElementById('interest-select').addEventListener('change', function() {
+                    // Clear the filtered interests array
+                    filteredInterests.length = 0;
+                    // Clear the filtered focuses array
+                    filteredFocuses.length = 0;
                     // Clear the name dropdown
                     document.getElementById('name-select').innerHTML = '<option value="0">Select a Translator</option>';
                     // Clear the focus dropdown
@@ -558,21 +556,46 @@
                                         if (splitFocuses[i] === '') {
                                             splitFocuses.splice(i, 1);
                                         }
+/* NEED TO ADD VALUES TO EMPTY ARRAY, REMOVE DUPLICATES, SORT ALPHABETICALLY */
+                                        // Push the split focus to the filteredFocuses array
+                                        filteredFocuses.push(splitFocuses[i]);
+                                        /*                                      
                                         const opt = splitFocuses[i];
                                         const el = document.createElement("option");
                                         el.textContent = opt;
                                         el.value = opt;
                                         focusSelect.appendChild(el);
+                                        */
                                     }
                                 } else {
+/* NEED TO ADD VALUES TO EMPTY ARRAY, REMOVE DUPLICATES, SORT ALPHABETICALLY */  
+                                    // Push the focus to the filteredFocuses array
+                                    filteredFocuses.push(layer.feature.properties.Focus);
+                                    /*                                  
                                     const opt = layer.feature.properties.Focus;
                                     const el = document.createElement("option");
                                     el.textContent = opt;
                                     el.value = opt;
                                     focusSelect.appendChild(el);
+                                    */
                                 };
                             };
                         });
+                    };
+                    // Remove duplicate focuses from the filteredFocuses array
+                    filteredFocuses = filteredFocuses.filter(function(item, index) {
+                        return filteredFocuses.indexOf(item) >= index;
+                    });
+                    // Sort the filteredFocuses array alphabetically
+                    filteredFocuses.sort();
+                    console.log(filteredFocuses);
+                    // Add the filteredFocuses array to the dropdown menu
+                    for (let i = 0; i < filteredFocuses.length; i++) {
+                        const opt = filteredFocuses[i];
+                        const el = document.createElement("option");
+                        el.textContent = opt;
+                        el.value = opt;
+                        focusSelect.appendChild(el);
                     };
                 });
             };
