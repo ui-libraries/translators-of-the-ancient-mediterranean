@@ -163,6 +163,14 @@
                             <option value="0">Select an Interest</option>
                         </select>
                     </form>
+                    <div id="dropdown-instructions">
+                        <p><h2 class="choose">Filter by focus:</h2></p>
+                    </div>
+                    <form id="map_parameters" name="map_parameters" action="#" accept-charset="utf-8" class="inlineForm">
+                        <select id="focus-select" class="div-toggle" data-target=".my-info-1">
+                            <option value="0">Select a Focus</option>
+                        </select>
+                    </form>
                     <!-- Add a button to trigger the handleButtonClick() function -->
                     <div id="search-instructions">
                     <p><h2 class="choose">Click the search button or zoom out.</h2></p>
@@ -224,6 +232,8 @@
             let names = [];
             // Define an empty array to hold the translator interests
             let interests = [];
+            // Define an empty array to hold the translator focuses
+            let focuses = [];
             // define sidebar info
             const info = document.getElementById("content-info");
             // Declare a global variable to hold the translator locations layer
@@ -279,6 +289,33 @@
                                 // Push the split interest to the interests array
                                 interests.push(splitInterests[i]);
                             }
+                        } else {
+                            // Push the interest to the interests array
+                            interests.push(feature.properties.AOI);
+                        };
+                        // If there is a comma in the focus field, split it into an array
+                        if (feature.properties.Focus.includes(',')) {
+                            const splitFocuses = feature.properties.Focus.split(',');
+                            // Loop through the split focuses array
+                            for (let i = 0; i < splitFocuses.length; i++) {
+                                // if there is a space at the beginning of the focus, remove the space
+                                if (splitFocuses[i].charAt(0) === ' ') {
+                                    splitFocuses[i] = splitFocuses[i].substring(1);
+                                }
+                                // if there is an "and" at the beginning of the focus, remove "and"
+                                if (splitFocuses[i].substring(0, 3) === 'and') {
+                                    splitFocuses[i] = splitFocuses[i].substring(4);
+                                }
+                                // if an entry is '' remove it
+                                if (splitFocuses[i] === '') {
+                                    splitFocuses.splice(i, 1);
+                                }
+                                // Push the split focus to the focuses array
+                                focuses.push(splitFocuses[i]);
+                            }
+                        } else {
+                            // Push the focus to the focuses array
+                            focuses.push(feature.properties.Focus);
                         };
                         // Add a tooltip to each marker to display the translators' names
                         layer.bindTooltip('<div style="max-width: 250px; width: max-content; white-space: normal;"><b>' + feature.properties.Author + '</b><hr>' + feature.properties.Affiliation + '<br>' + feature.properties.Position + '<br><b>Interest:</b> ' + feature.properties.AOI + '<br><b>Focus:</b> ' + feature.properties.Focus);
@@ -358,6 +395,12 @@
                 interests = interests.filter(function(item, index) {
                     return interests.indexOf(item) >= index;
                 });
+                // Reorder the focuses array alphabetically
+                focuses.sort();
+                // Remove duplicate focuses from the focuses array
+                focuses = focuses.filter(function(item, index) {
+                    return focuses.indexOf(item) >= index;
+                });
                 // Add the names array to the dropdown menu
                 const nameSelect = document.getElementById("name-select");
                 for (let i = 0; i < names.length; i++) {
@@ -376,11 +419,96 @@
                     el.value = opt;
                     interestSelect.appendChild(el);
                 };
-                // if there is a change in the interest dropdown, update the name dropdown
+                // Add the focuses array to the dropdown menu
+                const focusSelect = document.getElementById("focus-select");
+                for (let i = 0; i < focuses.length; i++) {
+                    const opt = focuses[i];
+                    const el = document.createElement("option");
+                    el.textContent = opt;
+                    el.value = opt;
+                    focusSelect.appendChild(el);
+                };
+                // if there is a change in the focus dropdown, update the name dropdown and the interest dropdown
+                document.getElementById('focus-select').addEventListener('change', function() {
+                    // Clear the name dropdown
+                    document.getElementById('name-select').innerHTML = '<option value="0">Select a Translator</option>';
+                    // Clear the interest dropdown
+                    document.getElementById('interest-select').innerHTML = '<option value="0">Select an Interest</option>';
+                    // If the focus dropdown is set to "0", return the name dropdown and the interest dropdown to their default states
+                    if (document.getElementById('focus-select').value === "0") {
+                        // Add the names array to the dropdown menu
+                        for (let i = 0; i < names.length; i++) {
+                            const opt = names[i];
+                            const el = document.createElement("option");
+                            el.textContent = opt;
+                            el.value = opt;
+                            nameSelect.appendChild(el);
+                        };
+                        // Add the interests array to the dropdown menu
+                        for (let i = 0; i < interests.length; i++) {
+                            const opt = interests[i];
+                            const el = document.createElement("option");
+                            el.textContent = opt;
+                            el.value = opt;
+                            interestSelect.appendChild(el);
+                        };
+                    } else {
+                        // Get the selected focus
+                        const selectedFocus = document.getElementById('focus-select').value;
+                        // Loop through the translocLayer features
+                        translocLayer.eachLayer(function(layer) {
+                            // If the selected focus is found in the layer, add the author to the name dropdown
+                            if (layer.feature.properties.Focus.includes(selectedFocus)) {
+                                const opt = layer.feature.properties.Author;
+                                const el = document.createElement("option");
+                                el.textContent = opt;
+                                el.value = opt;
+                                nameSelect.appendChild(el);
+                            };
+                            // If the selected focus is found in the layer, add the interest to the interest dropdown
+                            if (layer.feature.properties.Focus.includes(selectedFocus)) {
+                                // If there is a comma in the interest field, split it into an array
+                                if (layer.feature.properties.AOI.includes(',')) {
+                                    const splitInterests = layer.feature.properties.AOI.split(',');
+                                    // Loop through the split interests array
+                                    for (let i = 0; i < splitInterests.length; i++) {
+                                        // if there is a space at the beginning of the interest, remove the space
+                                        if (splitInterests[i].charAt(0) === ' ') {
+                                            splitInterests[i] = splitInterests[i].substring(1);
+                                        }
+                                        // if there is an "and" at the beginning of the interest, remove "and"
+                                        if (splitInterests[i].substring(0, 3) === 'and') {
+                                            splitInterests[i] = splitInterests[i].substring(4);
+                                        }
+                                        // if an entry is '' remove it
+                                        if (splitInterests[i] === '') {
+                                            splitInterests.splice(i, 1);
+                                        }
+                                        const opt = splitInterests[i];
+                                        const el = document.createElement("option");
+                                        el.textContent = opt;
+                                        el.value = opt;
+                                        interestSelect.appendChild(el);
+                                    }
+                                } else {
+                                    const opt = layer.feature.properties.AOI;
+                                    const el = document.createElement("option");
+                                    el.textContent = opt;
+                                    el.value = opt;
+                                    interestSelect.appendChild(el);
+                                };
+                            };
+                        });
+                    };
+                });
+
+                // if there is a change in the interest dropdown, update the name dropdown and the focus dropdown
                 document.getElementById('interest-select').addEventListener('change', function() {
                     // Clear the name dropdown
                     document.getElementById('name-select').innerHTML = '<option value="0">Select a Translator</option>';
-                    // If the interest dropdown is set to "0", return the name dropdown to its default state
+                    // Clear the focus dropdown
+                    document.getElementById('focus-select').innerHTML = '<option value="0">Select a Focus</option>';
+                    // If the interest dropdown is set to "0", return the name dropdown and the focus dropdown to their default states
                     if (document.getElementById('interest-select').value === "0") {
                         // Add the names array to the dropdown menu
                         for (let i = 0; i < names.length; i++) {
@@ -389,6 +517,14 @@
                             el.textContent = opt;
                             el.value = opt;
                             nameSelect.appendChild(el);
+                        };
+                        // Add the focuses array to the dropdown menu
+                        for (let i = 0; i < focuses.length; i++) {
+                            const opt = focuses[i];
+                            const el = document.createElement("option");
+                            el.textContent = opt;
+                            el.value = opt;
+                            focusSelect.appendChild(el);
                         };
                     } else {
                         // Get the selected interest
@@ -402,6 +538,39 @@
                                 el.textContent = opt;
                                 el.value = opt;
                                 nameSelect.appendChild(el);
+                            };
+                            // If the selected interest is found in the layer, add the focus to the focus dropdown
+                            if (layer.feature.properties.AOI.includes(selectedInterest)) {
+                                // If there is a comma in the focus field, split it into an array
+                                if (layer.feature.properties.Focus.includes(',')) {
+                                    const splitFocuses = layer.feature.properties.Focus.split(',');
+                                    // Loop through the split focuses array
+                                    for (let i = 0; i < splitFocuses.length; i++) {
+                                        // if there is a space at the beginning of the focus, remove the space
+                                        if (splitFocuses[i].charAt(0) === ' ') {
+                                            splitFocuses[i] = splitFocuses[i].substring(1);
+                                        }
+                                        // if there is an "and" at the beginning of the focus, remove "and"
+                                        if (splitFocuses[i].substring(0, 3) === 'and') {
+                                            splitFocuses[i] = splitFocuses[i].substring(4);
+                                        }
+                                        // if an entry is '' remove it
+                                        if (splitFocuses[i] === '') {
+                                            splitFocuses.splice(i, 1);
+                                        }
+                                        const opt = splitFocuses[i];
+                                        const el = document.createElement("option");
+                                        el.textContent = opt;
+                                        el.value = opt;
+                                        focusSelect.appendChild(el);
+                                    }
+                                } else {
+                                    const opt = layer.feature.properties.Focus;
+                                    const el = document.createElement("option");
+                                    el.textContent = opt;
+                                    el.value = opt;
+                                    focusSelect.appendChild(el);
+                                };
                             };
                         });
                     };
