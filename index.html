@@ -255,6 +255,8 @@
             let chapterContent = [];
             // Define an empty array to hold the translator names
             let names = [];
+            // Define an empty array to hold the filtered names
+            let filteredNames = [];
             // Define an empty array to hold the translator interests
             let interests = [];
             // Define an empty array to hold the filtered interests
@@ -345,7 +347,7 @@
                             focuses.push(feature.properties.Focus);
                         };
                         // Add a tooltip to each marker to display the translators' names
-                        layer.bindTooltip('<div style="max-width: 250px; width: max-content; white-space: normal;"><b>' + feature.properties.Author + '</b><hr>' + feature.properties.Affiliation + '<br>' + feature.properties.Position + '<br><b>Interest:</b> ' + feature.properties.AOI + '<br><b>Focus:</b> ' + feature.properties.Focus);
+                        layer.bindTooltip('<div style="max-width: 250px; width: max-content; white-space: normal;"><b>' + feature.properties.Author + '</b><hr>' + feature.properties.Affiliation + '<br>' + feature.properties.Position + '<br><b>Interest:</b> ' + feature.properties.AOI + '<br><b>Focus:</b> ' + feature.properties.Focus + '<br><b>Contact:</b> ' + feature.properties.Contact);
                         // On mouseover, change the marker color
                         layer.on('mouseover', function(e) {
                             // Change the marker color
@@ -428,16 +430,52 @@
                         selectedTranslators.clearLayers();
                         // Clear the chapterContent array
                         chapterContent.length = 0;
+                        // Clear the dropdown menus
+                        interestSelect.innerHTML = '<option value="0">No interest selected</option>';
+                        focusSelect.innerHTML = '<option value="0">No focus selected</option>';
+                        nameSelect.innerHTML = '<option value="0">No translator selected</option>';
+                        // Clear the filtered arrays
+                        filteredInterests.length = 0;
+                        filteredFocuses.length = 0;
+                        filteredNames.length = 0;
                         
                         // If "All Translators" is selected, show all the translators
                         if (document.getElementById('option-one').checked) {
                             // Iterate through the translocLayer    
                             translocLayer.eachLayer(function(layer) {
+                                
+                                // Define the interest
+                                const interest = layer.feature.properties.AOI;
+                                // Define the focus
+                                const focus = layer.feature.properties.Focus;
+                                // Define the author
+                                const author = layer.feature.properties.Author;
+
                                 // If the translator is affiliated or independent, add the layer to the selectedTranslators layer
                                 if (layer.feature.properties.Affiliation == 'Independent' || layer.feature.properties.Affiliation !== 'Independent') {
                                     selectedTranslators.addLayer(layer);
                                     // Build out the chapterContent array
-                                    chapterContent.push('<p style="margin-left: 1.4em"><b style="font-size: 12pt">' + layer.feature.properties.Author + '</b><br><br>' + layer.feature.properties.Affiliation + '<br>' + layer.feature.properties.Position + '<br><b>Interest:</b> ' + layer.feature.properties.AOI + '<br><b>Focus:</b> ' + layer.feature.properties.Focus + '</p>');
+                                    chapterContent.push('<p style="margin-left: 1.4em"><b style="font-size: 12pt">' + layer.feature.properties.Author + '</b><br><br>' + layer.feature.properties.Affiliation + '<br>' + layer.feature.properties.Position + '<br><b>Interest:</b> ' + layer.feature.properties.AOI + '<br><b>Focus:</b> ' + layer.feature.properties.Focus + '<br><b>Contact:</b> ' + layer.feature.properties.Contact + '</p>');
+                                    // Add interest(s) to the filteredInterests array
+                                    if (interest.includes(',')) {
+                                        const splitInterests = interest.split(',');
+                                        splitInterests.forEach(splitInterest => {
+                                            filteredInterests.push(splitInterest.trim());
+                                        });
+                                    } else {
+                                        filteredInterests.push(interest);
+                                    };
+                                    // Add focus(es) to the filteredFocuses array
+                                    if (focus.includes(',')) {
+                                        const splitFocuses = focus.split(',');
+                                        splitFocuses.forEach(splitFocus => {
+                                            filteredFocuses.push(splitFocus.trim());
+                                        });
+                                    } else {
+                                        filteredFocuses.push(focus);
+                                    };
+                                    // Add the author to the filteredNames array
+                                    filteredNames.push(author);
                                 } else {
                                     // Else, remove the layer from the selectedTranslators layer
                                     selectedTranslators.removeLayer(layer);
@@ -450,16 +488,43 @@
                         if (document.getElementById('option-two').checked) {
                             // Iterate through the translocLayer
                             translocLayer.eachLayer(function(layer) {
+
+                                // Define the interest
+                                const interest = layer.feature.properties.AOI;
+                                // Define the focus
+                                const focus = layer.feature.properties.Focus;
+                                // Define the author
+                                const author = layer.feature.properties.Author;
+
                                 // If the translator is affiliated, add the layer to the selectedTranslators layer
                                 if (layer.feature.properties.Affiliation !== 'Independent') {
                                     selectedTranslators.addLayer(layer);
                                     // Build out the chapterContent array
-                                    chapterContent.push('<p style="margin-left: 1.4em"><b style="font-size: 12pt">' + layer.feature.properties.Author + '</b><br><br>' + layer.feature.properties.Affiliation + '<br>' + layer.feature.properties.Position + '<br><b>Interest:</b> ' + layer.feature.properties.AOI + '<br><b>Focus:</b> ' + layer.feature.properties.Focus + '</p>');
+                                    chapterContent.push('<p style="margin-left: 1.4em"><b style="font-size: 12pt">' + layer.feature.properties.Author + '</b><br><br>' + layer.feature.properties.Affiliation + '<br>' + layer.feature.properties.Position + '<br><b>Interest:</b> ' + layer.feature.properties.AOI + '<br><b>Focus:</b> ' + layer.feature.properties.Focus + '<br><b>Contact:</b> ' + layer.feature.properties.Contact + '</p>');
+                                    // Add interest(s) to the filteredInterests array
+                                    if (interest.includes(',')) {
+                                        const splitInterests = interest.split(',');
+                                        splitInterests.forEach(splitInterest => {
+                                            filteredInterests.push(splitInterest.trim());
+                                        });
+                                    } else {
+                                        filteredInterests.push(interest);
+                                    };
+                                    // Add focus(es) to the filteredFocuses array
+                                    if (focus.includes(',')) {
+                                        const splitFocuses = focus.split(',');
+                                        splitFocuses.forEach(splitFocus => {
+                                            filteredFocuses.push(splitFocus.trim());
+                                        });
+                                    } else {
+                                        filteredFocuses.push(focus);
+                                    };
+                                    // Add the author to the filteredNames array
+                                    filteredNames.push(author);
                                 } else {
                                     // Else, remove the layer from the selectedTranslators layer
                                     selectedTranslators.removeLayer(layer);
                                 };
-
                             });
                         };
 
@@ -467,19 +532,106 @@
                         if (document.getElementById('option-three').checked) {
                             // Iterate through the translocLayer
                             translocLayer.eachLayer(function(layer) {
+
+                                // Define the interest
+                                const interest = layer.feature.properties.AOI;
+                                // Define the focus
+                                const focus = layer.feature.properties.Focus;
+                                // Define the author
+                                const author = layer.feature.properties.Author;
+
                                 // If the translator is independent, add the layer to the selectedTranslators layer
                                 if (layer.feature.properties.Affiliation == 'Independent') {
                                     selectedTranslators.addLayer(layer);
                                     // Build out the chapterContent array
-                                    chapterContent.push('<p style="margin-left: 1.4em"><b style="font-size: 12pt">' + layer.feature.properties.Author + '</b><br><br>' + layer.feature.properties.Affiliation + '<br>' + layer.feature.properties.Position + '<br><b>Interest:</b> ' + layer.feature.properties.AOI + '<br><b>Focus:</b> ' + layer.feature.properties.Focus + '</p>');
+                                    chapterContent.push('<p style="margin-left: 1.4em"><b style="font-size: 12pt">' + layer.feature.properties.Author + '</b><br><br>' + layer.feature.properties.Affiliation + '<br>' + layer.feature.properties.Position + '<br><b>Interest:</b> ' + layer.feature.properties.AOI + '<br><b>Focus:</b> ' + layer.feature.properties.Focus + '<br><b>Contact:</b> ' + layer.feature.properties.Contact + '</p>');
+                                    // Add interest(s) to the filteredInterests array
+                                    if (interest.includes(',')) {
+                                        const splitInterests = interest.split(',');
+                                        splitInterests.forEach(splitInterest => {
+                                            filteredInterests.push(splitInterest.trim());
+                                        });
+                                    } else {
+                                        filteredInterests.push(interest);
+                                    };
+                                    // Add focus(es) to the filteredFocuses array
+                                    if (focus.includes(',')) {
+                                        const splitFocuses = focus.split(',');
+                                        splitFocuses.forEach(splitFocus => {
+                                            filteredFocuses.push(splitFocus.trim());
+                                        });
+                                    } else {
+                                        filteredFocuses.push(focus);
+                                    };
+                                    // Add the author to the filteredNames array
+                                    filteredNames.push(author);
                                 } else {
                                     // remove the layer from the selectedTranslators layer
                                     selectedTranslators.removeLayer(layer);
                                 };
-
                             });
                         };
 
+                        // Remove duplicate interests from the filteredInterests array
+                        filteredInterests = filteredInterests.filter(function(item, index) {
+                            return filteredInterests.indexOf(item) >= index;
+                        });
+
+                        // Sort the filteredInterests array alphabetically
+                        filteredInterests.sort();
+
+                        // Remove empty strings from the filteredInterests array
+                        filteredInterests = filteredInterests.filter(interest => interest !== '');
+
+                        // Add the filteredInterests array to the dropdown menu
+                        for (let i = 0; i < filteredInterests.length; i++) {
+                            const opt = filteredInterests[i];
+                            const el = document.createElement("option");
+                            el.textContent = opt;
+                            el.value = opt;
+                            interestSelect.appendChild(el);
+                        };
+
+                        // Remove duplicate focuses from the filteredFocuses array
+                        filteredFocuses = filteredFocuses.filter(function(item, index) {
+                            return filteredFocuses.indexOf(item) >= index;
+                        });
+
+                        // Sort the filteredFocuses array alphabetically
+                        filteredFocuses.sort();
+
+                        // Remove empty strings from the filteredFocuses array
+                        filteredFocuses = filteredFocuses.filter(focus => focus !== '');
+
+                        // Add the filteredFocuses array to the dropdown menu
+                        for (let i = 0; i < filteredFocuses.length; i++) {
+                            const opt = filteredFocuses[i];
+                            const el = document.createElement("option");
+                            el.textContent = opt;
+                            el.value = opt;
+                            focusSelect.appendChild(el);
+                        };
+                        
+                        // Remove duplicate names from the filteredNames array
+                        filteredNames = filteredNames.filter(function(item, index) {
+                            return filteredNames.indexOf(item) >= index;
+                        });
+
+                        // Sort the filteredNames array alphabetically
+                        filteredNames.sort();
+
+                        // Remove empty strings from the filteredNames array
+                        filteredNames = filteredNames.filter(name => name !== '');  
+
+                        // Add the filteredNames array to the dropdown menu
+                        for (let i = 0; i < filteredNames.length; i++) {
+                            const opt = filteredNames[i];
+                            const el = document.createElement("option");
+                            el.textContent = opt;
+                            el.value = opt;
+                            nameSelect.appendChild(el);
+                        };
+                        
                         // Sort chapterContent by "layer.feature.properties.Author"
                         chapterContent.sort(function(a, b) {
                             return a.localeCompare(b);
@@ -487,6 +639,7 @@
 
                         // Join the chapterContent array, and set it as the innerHTML of the info div
                         info.innerHTML = chapterContent.join('<br>'); 
+
                     });
                 });
                 
