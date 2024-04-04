@@ -413,7 +413,10 @@
                     el.textContent = opt;
                     el.value = opt;
                     focusSelect.appendChild(el);
-                };  
+                };
+
+                // Ensure that "All Translators" is selected after the page loads
+                document.getElementById('option-one').checked = true;
                 
                 // Add an event listener to the radio buttons
                 document.querySelectorAll('input[type=radio]').forEach((radio) => {
