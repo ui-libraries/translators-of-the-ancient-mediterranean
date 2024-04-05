@@ -35,7 +35,6 @@
             /* Font styles */
             h1 {
                 color: white;
-                font-size: 16px;
                 display: inline-block;
                 margin-top: 0.5em;
                 margin-bottom: 0.0em;
@@ -43,6 +42,35 @@
                 margin-right: 0;
                 font-weight: normal;
                 font-family: "Montserrat";
+            }
+            /* Define CSS variables for different font sizes */
+            :root {
+                --font-size-small: 11px; /* Font size for small screens */
+                --font-size-medium: 16px; /* Font size for medium screens */
+                --font-size-large: 18px; /* Font size for large screens */
+            }
+            /* Apply default font size */
+            h1 {
+                font-size: var(--font-size-medium);
+            }
+            /* Adjust font size based on screen width */           
+            /* For screens smaller than 765px, use the small font size */
+            @media (max-width: 764px) {
+                h1 {
+                    font-size: var(--font-size-large);
+                }
+            }
+            /* Between 765px and 990px, use the small font size */
+            @media (min-width: 765px) and (max-width: 989px) {
+                h1 {
+                    font-size: var(--font-size-small);
+                }
+            }
+            /* For screens larger than 1200px, use the large font size */
+            @media (min-width: 1200px) {
+                h1 {
+                    font-size: var(--font-size-large);
+                }
             }
             h2 {
                 font-size: 12px;
