@@ -2229,7 +2229,24 @@
                     });
 
                     // Join the chapterContent array, and set it as the innerHTML of the info div
-                    info.innerHTML = chapterContent.join('<br>'); 
+                    info.innerHTML = chapterContent.join('<br>');
+
+                    // Fit the map to the markers on the map
+                    if (selectedTranslators.getLayers().length > 0) {
+                        // Initialize an empty LatLngBounds object
+                        let bounds = L.latLngBounds();
+                        // Loop through the selectedTranslators layer to get the bounds
+                        selectedTranslators.eachLayer(function(layer) {
+                            bounds.extend(layer.getLatLng());
+                        });
+                        // Fit the map to the bounds
+                        map.fitBounds(bounds);
+                    };
+
+                    // Set the maximum zoom level to 10 if the current zoom level is greater than 10
+                    if (map.getZoom() > 10) {
+                        map.setZoom(10);
+                    }                     
 
                 });
 
@@ -3821,13 +3838,30 @@
                     // Join the chapterContent array, and set it as the innerHTML of the info div
                     info.innerHTML = chapterContent.join('<br>');
 
+                    // Fit the map to the markers on the map
+                    if (selectedTranslators.getLayers().length > 0) {
+                        // Initialize an empty LatLngBounds object
+                        let bounds = L.latLngBounds();
+                        // Loop through the selectedTranslators layer to get the bounds
+                        selectedTranslators.eachLayer(function(layer) {
+                            bounds.extend(layer.getLatLng());
+                        });
+                        // Fit the map to the bounds
+                        map.fitBounds(bounds);
+                    };
+
+                    // Set the maximum zoom level to 10 if the current zoom level is greater than 10
+                    if (map.getZoom() > 10) {
+                        map.setZoom(10);
+                    }  
+
                 });
 
                 // If the user selects a name
                 nameSelect.addEventListener('change', function() {
 
-// Remove the translocLayer from the map
-translocLayer.remove();
+                    // Remove the translocLayer from the map
+                    translocLayer.remove();
                     // Clear the selectedTranslators layer
                     selectedTranslators.clearLayers();
                     // Clear the chapterContent array
@@ -5410,6 +5444,23 @@ translocLayer.remove();
 
                     // Join the chapterContent array, and set it as the innerHTML of the info div
                     info.innerHTML = chapterContent.join('<br>');
+
+                    // Fit the map to the markers on the map
+                    if (selectedTranslators.getLayers().length > 0) {
+                        // Initialize an empty LatLngBounds object
+                        let bounds = L.latLngBounds();
+                        // Loop through the selectedTranslators layer to get the bounds
+                        selectedTranslators.eachLayer(function(layer) {
+                            bounds.extend(layer.getLatLng());
+                        });
+                        // Fit the map to the bounds
+                        map.fitBounds(bounds);
+                    };
+
+                    // Set the maximum zoom level to 10 if the current zoom level is greater than 10
+                    if (map.getZoom() > 10) {
+                        map.setZoom(10);
+                    }  
                                         
                 });
                 
