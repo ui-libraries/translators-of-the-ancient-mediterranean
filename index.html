@@ -242,6 +242,7 @@
         <!-- sidebar -->
         <script src="src/svg-icon.js"></script>
         <script src="src/leaflet-sidebar.js"></script>
+        <script src="src/leaflet.activearea.js"></script>
         <!-- javascript below -->            
         <script>
             // Initialize the map
@@ -3856,22 +3857,7 @@
                     // Join the chapterContent array, and set it as the innerHTML of the info div
                     info.innerHTML = chapterContent.join('<br>');
 
-                    // Fit the map to the markers on the map
-                    if (selectedTranslators.getLayers().length > 0) {
-                        // Initialize an empty LatLngBounds object
-                        let bounds = L.latLngBounds();
-                        // Loop through the selectedTranslators layer to get the bounds
-                        selectedTranslators.eachLayer(function(layer) {
-                            bounds.extend(layer.getLatLng());
-                        });
-                        // Fit the map to the bounds
-                        map.fitBounds(bounds);
-                    };
-
-                    // Set the maximum zoom level to 10 if the current zoom level is greater than 10
-                    if (map.getZoom() > 10) {
-                        map.setZoom(10);
-                    }  
+                    adjustMapBounds(map, selectedTranslators, sidebarElement);
 
                 });
 
@@ -5463,41 +5449,14 @@
                     // Join the chapterContent array, and set it as the innerHTML of the info div
                     info.innerHTML = chapterContent.join('<br>');
 
-                    // Fit the map to the markers on the map
-                    if (selectedTranslators.getLayers().length > 0) {
-                        // Initialize an empty LatLngBounds object
-                        let bounds = L.latLngBounds();
-                        // Loop through the selectedTranslators layer to get the bounds
-                        selectedTranslators.eachLayer(function(layer) {
-                            bounds.extend(layer.getLatLng());
-                        });
-                        // Fit the map to the bounds
-                        map.fitBounds(bounds);
-                    };
-
-                    // Set the maximum zoom level to 10 if the current zoom level is greater than 10
-                    if (map.getZoom() > 10) {
-                        map.setZoom(10);
-                    };  
+                    adjustMapBounds(map, selectedTranslators, sidebarElement);
                                         
                 });
 
-                // Listen for a change in the sidebar width
-                window.addEventListener('resize', function() {
-                    //visibleBounds();
-                });
-
-                // Listen for a change in the zoom level
-                map.on('zoomend', function() {
-                    //visibleBounds();
-                });
-
-                
             };
             // End drawMap function
 
             // Define universal functions
-           
             // Define the handleZoomOutClick() function
             function handleZoomOutClick() {
                 // Perform the zoom-out operation using fitBounds()
@@ -5508,144 +5467,22 @@
                 // Refresh the page
                 location.reload();         
             };
-
-
-            // Define a function to adjust map bounds considering the sidebar
-            function adjustMapBounds(map, selectedTranslators, sidebarElement) {
-                // Get the bounds of the entire map
-                let mapBounds = map.getBounds();
-
-                // Get the bounds of the sidebar
-                let sidebarBounds = sidebarElement.getBoundingClientRect();
-
-                // Calculate the bounds of the map area not covered by the sidebar
-                let adjustedBounds = L.latLngBounds([
-                    [mapBounds.getSouth(), mapBounds.getWest()],
-                    [mapBounds.getNorth(), sidebarBounds.left]
-                ]);
-
-                // Extend adjusted bounds to include the markers
-                selectedTranslators.eachLayer(function(layer) {
-                    adjustedBounds.extend(layer.getLatLng());
-                });
-
-                // Fit the adjusted bounds to the map
-                map.fitBounds(adjustedBounds);
-
-                // If needed, you can also set a maximum zoom level to prevent excessive zooming
-                if (map.getZoom() > 10) {
-                    map.setZoom(10);
-                }
-            }        
-
-
-
             // Define a function to fit markers within the visible window
             function adjustMapBounds(map, selectedTranslators, sidebarElement) {
 
-                // Fit the map to the markers on the map
-                if (selectedTranslators.getLayers().length > 0) {
-                    // Initialize an empty LatLngBounds object
-                    let bounds = L.latLngBounds();
-                    // Loop through the selectedTranslators layer to get the bounds
-                    selectedTranslators.eachLayer(function(layer) {
-                        bounds.extend(layer.getLatLng());
-                    });
-                    
-                    // Determine the zoom level of these bounds without fitting the map
-                    let zoomLevel = map.getBoundsZoom(bounds);
+                // Get the right side of the sidebar
+                let sidebarRight = sidebarElement.getBoundingClientRect().right;
 
-                    // Set an undefined variable for redefinedZoom
-                    let redefinedZoom;
+                // Reset the map's active area with the new left-hand side
+                map.setActiveArea({
+                    position: 'absolute',
+                    top: '0px',
+                    left: sidebarRight + 'px',
+                    right: '0px',
+                    height: '100%'
+                });
 
-                    // If the zoom level is greater than 11, set redefinedZoom to 11
-                    if (zoomLevel > 11) {
-                        redefinedZoom = 11;
-                    } else {
-                        redefinedZoom = zoomLevel;
-                    };
-
-                    // Define finalZoom as the redefinedZoom - 1
-                    let finalZoom = redefinedZoom - 1;                    
-                  
-                    // Determine the width of the sidebar in pixels
-                    let sidebarWidth = sidebarElement.offsetWidth;
-
-                    // Calculate the scale factor for the current zoom level
-                    let scale = Math.pow(2, finalZoom + 1);
-
-                    // Determine the width of the sidebar in meters
-                    let sidebarWidthMeters = (sidebarWidth / scale) * 156543.03392; // Each pixel corresponds to approximately 156543.03392 meters at zoom level 0
-
-                    // Calculate the latitude at the center of the bounds
-                    let centerLat = bounds.getCenter().lat;
-
-                    // Calculate the circumference of the Earth at the latitude (in meters)
-                    let earthCircumference = 2 * Math.PI * 6378137; // Earth's equatorial radius
-
-                    // Calculate the number of meters per degree of longitude at the latitude
-                    let metersPerDegreeLng = earthCircumference * Math.cos(centerLat * Math.PI / 180) / 360;
-
-                    // Convert the width from meters to longitudinal decimal degrees
-                    let sidebarWidthLng = sidebarWidthMeters / metersPerDegreeLng;
-
-                    // Define a new center by subtracting sidebarWidthLng from the longitude of bounds.getCenter()
-                    let newCenter = L.latLng(bounds.getCenter().lat, bounds.getCenter().lng - sidebarWidthLng);
-
-                    // Center the map on newCenter at finalZoom
-                    map.setView(newCenter, finalZoom);
-
-                };
-            };
-
-
-
-/*
-                    // Fit the map to the bounds
-                    map.fitBounds(bounds);
-
-                    // Set the maximum zoom level to 11 if the current zoom level is greater than 11
-                    if (map.getZoom() > 11) {
-                        map.setZoom(11);
-                    }                    
-
-                    // Set a timeout of 250
-                    setTimeout(function() { 
-                        
-                        // Define the sidebar width in pixels
-                        let sidebarWidth = sidebarElement.offsetWidth;
-
-                        // Define the sidebar width as longitudinal decimal degrees at the current zoom level
-                        let sidebarWidthLng = map.containerPointToLatLng([sidebarWidth, 0]).lng - map.containerPointToLatLng([0, 0]).lng;
-
-                        // Define the map center
-                        let mapCenter = map.getCenter();    
-                        
-                        // Recenter the map by subtracting the longitude of the sidebar width from the map center
-                        let newCenter = L.latLng(mapCenter.lat, mapCenter.lng - sidebarWidthLng);                        
-
-                        // Set the map center to the new center
-                        map.panTo(newCenter);
-
-                        // Set a timeout of 250
-                        setTimeout(function() {
-                            
-                            // Zoom out one level...
-                            map.zoomOut();
-
-                        } , 250);
-                        
-                    }, 250);
-
-                };
-
-            };        
-*/
-
-
-/*             
-            // Define the fitMapToMarkers() function
-            function fitMapToMarkers() {
+                // Using this new left-hand side, fit the map to the markers
                 if (selectedTranslators.getLayers().length > 0) {
                     // Initialize an empty LatLngBounds object
                     let bounds = L.latLngBounds();
@@ -5655,40 +5492,14 @@
                     });
                     // Fit the map to the bounds
                     map.fitBounds(bounds);
-                }
-            };           
-            function addToFilteredFocuses(focus) {
-                if (focus && focus.trim() !== '') {
-                    filteredFocuses.push(focus.trim());
-                }
-            };       
-            function updateUI() {
+                };
+
                 // Set the maximum zoom level to 10 if the current zoom level is greater than 10
                 if (map.getZoom() > 10) {
                     map.setZoom(10);
-                }
-
-                // Remove duplicate focuses from the filteredFocuses array
-                filteredFocuses = filteredFocuses.filter(function(item, index) {
-                    return filteredFocuses.indexOf(item) >= index;
-                });
-
-                // Sort the filteredFocuses array alphabetically
-                filteredFocuses.sort();
-
-                // Add the filteredFocuses array to the dropdown menu
-                for (let i = 0; i < filteredFocuses.length; i++) {
-                    const opt = filteredFocuses[i];
-                    const el = document.createElement("option");
-                    el.textContent = opt;
-                    el.value = opt;
-                    focusSelect.appendChild(el);
-                }
-
-                // Join the chapterContent array, and set it as the innerHTML of the info div
-                info.innerHTML = chapterContent.join('<br>');
+                };  
+      
             };
-*/            
             // End universal functions
 
         </script>
