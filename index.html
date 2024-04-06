@@ -5453,6 +5453,22 @@
                                         
                 });
 
+                // Listen for a window resize event
+                window.addEventListener('resize', function() {
+                    adjustMapBounds(map, selectedTranslators, sidebarElement);
+                });
+                // Listen for a sidebar opening event
+                sidebar.on('opening', function(e) {
+                    setTimeout(function() {
+                        adjustMapBounds(map, selectedTranslators, sidebarElement);
+                    }, 510);
+                });
+                // Listen for a sidebar closing event
+                sidebar.on('closing', function(e) {
+                    setTimeout(function() {
+                        adjustMapBounds(map, selectedTranslators, sidebarElement);
+                    }, 510);
+                });
             };
             // End drawMap function
 
