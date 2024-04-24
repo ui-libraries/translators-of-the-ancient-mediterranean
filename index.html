@@ -15,7 +15,9 @@
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin="" />
         <!-- for the collapsible sidebar -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" />
-        <link rel="stylesheet" href="src/leaflet-sidebar.css" />            
+        <link rel="stylesheet" href="src/leaflet-sidebar.css" />  
+        <!-- for fullscreen button -->          
+        <link rel="stylesheet" href="src/Control.FullScreen.css" />
         <!-- custom style here -->
         <style type="text/css">
             /* Set the page and body parameters */
@@ -251,12 +253,18 @@
         <script src="src/svg-icon.js"></script>
         <script src="src/leaflet-sidebar.js"></script>
         <script src="src/leaflet.activearea.js"></script>
+        <!-- for fullscreen button -->
+        <script src="src/Control.FullScreen.js"></script>
         <!-- javascript below -->            
         <script>
             // Initialize the map
             const map = L.map('map', {
                 center: [17.016394922223267, -75],
-                zoom: 2
+                zoom: 2,
+                fullscreenControl: true,
+                fullscreenControlOptions: {
+                    position: 'topright'
+                }
             });
             // add a basemap
             L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
@@ -269,7 +277,7 @@
                 position: 'bottomright'
             }).addTo(map);
             // Remove the default zoom control
-            map.zoomControl.remove();            
+            //map.zoomControl.remove();            
             // Add a sidebar to the map
             const sidebar = L.control.sidebar("sidebar").addTo(map);
             sidebar.open("home");
@@ -292,7 +300,28 @@
                     // Change the button icon
                     collapseButton.innerHTML = '<span class="icon"><i class="fas fa-chevron-down"></i></span>';
                 }
-            });         
+            });
+            // Function to disable map zoom
+            function disableMapZoom() {
+                map.scrollWheelZoom.disable();
+            };
+            // Function to enable map zoom
+            function enableMapZoom() {
+                map.scrollWheelZoom.enable();
+            };
+            // Add event listener to disable map zoom when mouse is over the sidebar
+            sidebarElement.addEventListener('mouseover', disableMapZoom);
+            // Add event listener to enable map zoom when mouse leaves the sidebar
+            sidebarElement.addEventListener('mouseout', enableMapZoom);
+            // Listen for fullscreen change event
+            map.on('enterFullscreen', function() {
+                // When entering fullscreen, move the sidebar to the map container
+                map.getContainer().appendChild(sidebarElement);
+            });
+            map.on('exitFullscreen', function() {
+                // When exiting fullscreen, move the sidebar back to its original position
+                document.body.appendChild(sidebarElement);
+            });
             // Define an empty array to hold the chapter content
             let chapterContent = [];
             // Define an empty array to hold the translator names
