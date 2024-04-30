@@ -441,6 +441,20 @@
                                 shadowSize: [41, 41]
                             }));
                         });
+                        var popupContent = '<div style="max-width: 250px; width: max-content; white-space: normal;"><b>' + feature.properties.Author + '</b><hr>' + feature.properties.Affiliation + '<br>' + feature.properties.Position + '<br><b>Interest:</b> ' + feature.properties.AOI + '<br><b>Focus:</b> ' + feature.properties.Focus + '<br><b>Contact:</b> ' + feature.properties.Contact + '</div>';
+
+                        layer.bindPopup(popupContent)
+                        layer._popupOpen = false
+
+                        layer.on('click', function (e) {
+                            if (!this._popupOpen) {
+                                this.openPopup()
+                                this._popupOpen = true
+                            } else {
+                                this.closePopup()
+                                this._popupOpen = false
+                            }
+                        })
                     },
                 });            
                 // Assign the translatorLocs layer to the global translocLayer variable
